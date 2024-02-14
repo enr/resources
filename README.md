@@ -1,8 +1,8 @@
-# ideal-winner
+# resources
 
-![CI](https://github.com/enr/ideal-winner/workflows/CI/badge.svg)
+![CI](https://github.com/enr/resources/workflows/CI/badge.svg)
 
-[![](https://jitpack.io/v/enr/ideal-winner.svg)](https://jitpack.io/#enr/ideal-winner)
+[![](https://jitpack.io/v/enr/resources.svg)](https://jitpack.io/#enr/resources)
 
 Java library template
 
@@ -52,7 +52,7 @@ Add the dependency
 ```xml
 <dependency>
     <groupId>com.github.enr</groupId>
-    <artifactId>ideal-winner</artifactId>
-    <version>${idealwinner.version}</version>
+    <artifactId>resources</artifactId>
+    <version>${resources.version}</version>
 </dependency>
 ```
