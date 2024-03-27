@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 public class UnreadableResource implements Resource {
 
+  private static final String UNREADABLE_RESOURCE_TPL = "Unreadable resource %s";
   private final String location;
 
   public UnreadableResource(String location) {
@@ -18,17 +19,17 @@ public class UnreadableResource implements Resource {
 
   @Override
   public byte[] getAsBytes() {
-    throw new ResourceLoadingException("resource not found %s".formatted(location));
+    throw new ResourceLoadingException(UNREADABLE_RESOURCE_TPL.formatted(location));
   }
 
   @Override
   public InputStream getAsInputStream() {
-    throw new ResourceLoadingException("resource not found %s".formatted(location));
+    throw new ResourceLoadingException(UNREADABLE_RESOURCE_TPL.formatted(location));
   }
 
   @Override
   public String getAsString() {
-    throw new ResourceLoadingException("resource not found %s".formatted(location));
+    throw new ResourceLoadingException(UNREADABLE_RESOURCE_TPL.formatted(location));
   }
 
 }

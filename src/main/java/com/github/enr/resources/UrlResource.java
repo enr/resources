@@ -1,8 +1,6 @@
 package com.github.enr.resources;
 
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Optional;
 
@@ -17,7 +15,7 @@ public class UrlResource extends AbstractUrlResource {
     try {
       URI uri = new URI(location);
       return Optional.ofNullable(uri.toURL());
-    } catch (URISyntaxException | MalformedURLException e) {
+    } catch (Exception e) {
       // NOOP
     }
     return Optional.empty();

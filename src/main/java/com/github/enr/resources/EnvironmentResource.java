@@ -4,18 +4,26 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+import com.github.enr.system.EnvironmentSource;
+
 public class EnvironmentResource implements Resource {
 
   private final String key;
 
+  private final EnvironmentSource env;
+
   public EnvironmentResource(String key) {
-    super();
+    this(key, new EnvironmentSource() {});
+  }
+
+  public EnvironmentResource(String key, EnvironmentSource env) {
     this.key = key;
+    this.env = env;
   }
 
   @Override
   public boolean exists() {
-    return System.getenv(key) != null;
+    return env.getEnvironmentVar(key) != null;
   }
 
   @Override
@@ -30,7 +38,7 @@ public class EnvironmentResource implements Resource {
 
   @Override
   public String getAsString() {
-    String value = System.getenv(key);
+    String value = env.getEnvironmentVar(key);
     if (value == null) {
       throw new ResourceLoadingException("no environment variable %s".formatted(key));
     }

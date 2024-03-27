@@ -1,8 +1,6 @@
 package com.github.enr.resources;
 
-import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 public class UrlLocation implements ResourceLocation {
 
@@ -16,7 +14,7 @@ public class UrlLocation implements ResourceLocation {
     try {
       URI uri = new URI(path);
       return uri.toURL() != null;
-    } catch (URISyntaxException | MalformedURLException e) {
+    } catch (Exception e) {
       // NOOP
     }
     return false;

@@ -27,7 +27,6 @@ public class FileSystemLocation implements ResourceLocation {
       return false;
     }
     String path = clean(u);
-    System.err.printf("path='%s' %n", path);
     try {
 
       URI uri = new URI(path);

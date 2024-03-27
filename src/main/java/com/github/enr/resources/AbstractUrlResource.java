@@ -18,7 +18,13 @@ abstract class AbstractUrlResource implements Resource {
 
   @Override
   public boolean exists() {
-    return url(location).isPresent();
+    try {
+      Optional<URL> url = url(location);
+      return url.isPresent();
+    } catch (Exception e) {
+      // NOOP
+    }
+    return false;
   }
 
   @Override
