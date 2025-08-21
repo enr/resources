@@ -49,4 +49,10 @@ public class FileSystemResource implements Resource {
     }
   }
 
+  @Override
+  public Path toPath(PathConversionStrategy strategy) {
+    // FileSystemResource already has a direct file system path, so we can always return it
+    return path;
+  }
+
 }

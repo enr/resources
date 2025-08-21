@@ -1,6 +1,7 @@
 package com.github.enr.resources;
 
 import java.io.InputStream;
+import java.nio.file.Path;
 
 public class UnreadableResource implements Resource {
 
@@ -29,6 +30,11 @@ public class UnreadableResource implements Resource {
 
   @Override
   public String getAsString() {
+    throw new ResourceLoadingException(UNREADABLE_RESOURCE_TPL.formatted(location));
+  }
+
+  @Override
+  public Path toPath(PathConversionStrategy strategy) {
     throw new ResourceLoadingException(UNREADABLE_RESOURCE_TPL.formatted(location));
   }
 
