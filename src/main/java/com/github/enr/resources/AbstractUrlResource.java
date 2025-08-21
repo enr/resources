@@ -57,7 +57,7 @@ abstract class AbstractUrlResource implements Resource {
   }
 
   @Override
-  public Path toPath(PathConversionStrategy strategy) {
+  public Path getAsPath(PathConversionStrategy strategy) {
     try {
       URL url = urlOrFail(location);
 

@@ -34,7 +34,7 @@ public class UnreadableResource implements Resource {
   }
 
   @Override
-  public Path toPath(PathConversionStrategy strategy) {
+  public Path getAsPath(PathConversionStrategy strategy) {
     throw new ResourceLoadingException(UNREADABLE_RESOURCE_TPL.formatted(location));
   }
 

@@ -82,7 +82,7 @@ public class HttpResource implements Resource {
   }
 
   @Override
-  public Path toPath(PathConversionStrategy strategy) {
+  public Path getAsPath(PathConversionStrategy strategy) {
     try {
       switch (strategy) {
         case STRICT:

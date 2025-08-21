@@ -23,7 +23,7 @@ public interface Resource {
    * @return the Path representation of this resource
    * @throws ResourceLoadingException if the conversion is not possible with the given strategy
    */
-  Path toPath(PathConversionStrategy strategy);
+  Path getAsPath(PathConversionStrategy strategy);
 
   /**
    * Converts this resource to a Path using the default conversion strategy (STRICT).
@@ -31,7 +31,7 @@ public interface Resource {
    * @return the Path representation of this resource
    * @throws ResourceLoadingException if the conversion is not possible
    */
-  default Path toPath() {
-    return toPath(PathConversionStrategy.STRICT);
+  default Path getAsPath() {
+    return getAsPath(PathConversionStrategy.STRICT);
   }
 }

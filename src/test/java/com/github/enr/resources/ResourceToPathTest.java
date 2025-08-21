@@ -20,19 +20,19 @@ class ResourceToPathTest {
       FileSystemResource resource = new FileSystemResource(tempFile.toString());
 
       // Test with default strategy (STRICT)
-      Path result = resource.toPath();
+      Path result = resource.getAsPath();
       assertEquals(tempFile, result);
 
       // Test with explicit STRICT strategy
-      Path resultStrict = resource.toPath(PathConversionStrategy.STRICT);
+      Path resultStrict = resource.getAsPath(PathConversionStrategy.STRICT);
       assertEquals(tempFile, resultStrict);
 
       // Test with LENIENT strategy
-      Path resultLenient = resource.toPath(PathConversionStrategy.LENIENT);
+      Path resultLenient = resource.getAsPath(PathConversionStrategy.LENIENT);
       assertEquals(tempFile, resultLenient);
 
       // Test with FORCE_TEMPORARY strategy
-      Path resultForce = resource.toPath(PathConversionStrategy.FORCE_TEMPORARY);
+      Path resultForce = resource.getAsPath(PathConversionStrategy.FORCE_TEMPORARY);
       assertEquals(tempFile, resultForce);
 
       // Cleanup
@@ -58,12 +58,12 @@ class ResourceToPathTest {
 
     // Test that STRICT strategy throws exception
     assertThrows(ResourceLoadingException.class, () -> {
-      resource.toPath(PathConversionStrategy.STRICT);
+      resource.getAsPath(PathConversionStrategy.STRICT);
     });
 
     // Test that LENIENT strategy creates temporary file
     try {
-      Path result = resource.toPath(PathConversionStrategy.LENIENT);
+      Path result = resource.getAsPath(PathConversionStrategy.LENIENT);
       assertTrue(Files.exists(result));
       assertEquals(testValue, Files.readString(result));
 
@@ -75,7 +75,7 @@ class ResourceToPathTest {
 
     // Test that FORCE_TEMPORARY strategy creates temporary file
     try {
-      Path result = resource.toPath(PathConversionStrategy.FORCE_TEMPORARY);
+      Path result = resource.getAsPath(PathConversionStrategy.FORCE_TEMPORARY);
       assertTrue(Files.exists(result));
       assertEquals(testValue, Files.readString(result));
 
@@ -92,19 +92,19 @@ class ResourceToPathTest {
 
     // Test that all strategies throw exception
     assertThrows(ResourceLoadingException.class, () -> {
-      resource.toPath(PathConversionStrategy.STRICT);
+      resource.getAsPath(PathConversionStrategy.STRICT);
     });
 
     assertThrows(ResourceLoadingException.class, () -> {
-      resource.toPath(PathConversionStrategy.LENIENT);
+      resource.getAsPath(PathConversionStrategy.LENIENT);
     });
 
     assertThrows(ResourceLoadingException.class, () -> {
-      resource.toPath(PathConversionStrategy.FORCE_TEMPORARY);
+      resource.getAsPath(PathConversionStrategy.FORCE_TEMPORARY);
     });
 
     assertThrows(ResourceLoadingException.class, () -> {
-      resource.toPath();
+      resource.getAsPath();
     });
   }
 }
