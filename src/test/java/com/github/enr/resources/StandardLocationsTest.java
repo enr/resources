@@ -9,8 +9,7 @@ class StandardLocationsTest {
   @Test
   void classpath_shouldBeInstanceOfClasspathLocation() {
     ResourceLocation classpath = StandardLocations.CLASSPATH;
-    assertThat(classpath).as("CLASSPATH should be instance of ClasspathLocation")
-        .isInstanceOf(ClasspathLocation.class);
+    assertThat(classpath).as("CLASSPATH should be instance of ClasspathLocation").isInstanceOf(ClasspathLocation.class);
   }
 
   @Test
@@ -22,7 +21,7 @@ class StandardLocationsTest {
   @Test
   void withConventionalPriority_shouldReturnLocationsInPriorityOrder() {
     PrioritizableResourceLocation[] locations = StandardLocations.withConventionalPriority();
-    
+
     // Should be sorted by priority (highest first due to PrioritizableComparator)
     assertThat(locations[0].priority()).as("First location priority").isEqualTo(90);
     assertThat(locations[1].priority()).as("Second location priority").isEqualTo(80);
@@ -33,13 +32,12 @@ class StandardLocationsTest {
   @Test
   void withConventionalPriority_shouldReturnCorrectLocationTypes() {
     PrioritizableResourceLocation[] locations = StandardLocations.withConventionalPriority();
-    
+
     assertThat(locations[0].location()).as("First location should be ClasspathLocation")
         .isInstanceOf(ClasspathLocation.class);
     assertThat(locations[1].location()).as("Second location should be EnvironmentLocation")
         .isInstanceOf(EnvironmentLocation.class);
-    assertThat(locations[2].location()).as("Third location should be UrlLocation")
-        .isInstanceOf(UrlLocation.class);
+    assertThat(locations[2].location()).as("Third location should be UrlLocation").isInstanceOf(UrlLocation.class);
     assertThat(locations[3].location()).as("Fourth location should be FileSystemLocation")
         .isInstanceOf(FileSystemLocation.class);
   }
@@ -48,14 +46,14 @@ class StandardLocationsTest {
   void withConventionalPriority_shouldReturnNewArrayEachTime() {
     PrioritizableResourceLocation[] locations1 = StandardLocations.withConventionalPriority();
     PrioritizableResourceLocation[] locations2 = StandardLocations.withConventionalPriority();
-    
+
     assertThat(locations1).as("First call should return new array").isNotSameAs(locations2);
   }
 
   @Test
   void withConventionalPriority_shouldReturnLocationsWithCorrectPriorities() {
     PrioritizableResourceLocation[] locations = StandardLocations.withConventionalPriority();
-    
+
     // Verify priorities match expected values
     assertThat(locations).as("All locations should have correct priorities")
         .anySatisfy(location -> assertThat(location.priority()).as("ClasspathLocation priority").isEqualTo(90))
@@ -67,7 +65,7 @@ class StandardLocationsTest {
   @Test
   void withConventionalPriority_shouldReturnLocationsThatAreNotNull() {
     PrioritizableResourceLocation[] locations = StandardLocations.withConventionalPriority();
-    
+
     for (int i = 0; i < locations.length; i++) {
       assertThat(locations[i]).as("Location at index " + i).isNotNull();
       assertThat(locations[i].location()).as("Location.location() at index " + i).isNotNull();

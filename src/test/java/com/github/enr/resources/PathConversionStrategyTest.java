@@ -44,8 +44,7 @@ class PathConversionStrategyTest {
   @Test
   void enumValues_shouldBeDistinct() {
     PathConversionStrategy[] values = PathConversionStrategy.values();
-    assertThat(values).as("PathConversionStrategy enum values should be distinct")
-        .doesNotHaveDuplicates();
+    assertThat(values).as("PathConversionStrategy enum values should be distinct").doesNotHaveDuplicates();
   }
 
   @Test
@@ -53,11 +52,11 @@ class PathConversionStrategyTest {
     PathConversionStrategy strict = PathConversionStrategy.STRICT;
     PathConversionStrategy lenient = PathConversionStrategy.LENIENT;
     PathConversionStrategy forceTemporary = PathConversionStrategy.FORCE_TEMPORARY;
-    
+
     assertThat(strict).as("STRICT should equal itself").isEqualTo(strict);
     assertThat(lenient).as("LENIENT should equal itself").isEqualTo(lenient);
     assertThat(forceTemporary).as("FORCE_TEMPORARY should equal itself").isEqualTo(forceTemporary);
-    
+
     assertThat(strict).as("STRICT should not equal LENIENT").isNotEqualTo(lenient);
     assertThat(strict).as("STRICT should not equal FORCE_TEMPORARY").isNotEqualTo(forceTemporary);
     assertThat(lenient).as("LENIENT should not equal FORCE_TEMPORARY").isNotEqualTo(forceTemporary);

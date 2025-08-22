@@ -16,18 +16,18 @@ class ResourceTest {
   @Test
   void exists_shouldReturnTrue_whenResourceExists() {
     TestResource resource = new TestResource(true);
-    
+
     boolean result = resource.exists();
-    
+
     assertThat(result).as("exists() should return true when resource exists").isTrue();
   }
 
   @Test
   void exists_shouldReturnFalse_whenResourceDoesNotExist() {
     TestResource resource = new TestResource(false);
-    
+
     boolean result = resource.exists();
-    
+
     assertThat(result).as("exists() should return false when resource does not exist").isFalse();
   }
 
@@ -35,19 +35,18 @@ class ResourceTest {
   void getAsBytes_shouldReturnCorrectBytes() {
     String content = "test content";
     TestResource resource = new TestResource(true, content);
-    
+
     byte[] result = resource.getAsBytes();
-    
+
     assertThat(result).as("getAsBytes() should return correct bytes").isEqualTo(content.getBytes());
   }
 
   @Test
   void getAsBytes_shouldThrowException_whenResourceDoesNotExist() {
     TestResource resource = new TestResource(false);
-    
+
     assertThatThrownBy(() -> resource.getAsBytes())
-        .as("getAsBytes() should throw exception when resource does not exist")
-        .isInstanceOf(RuntimeException.class)
+        .as("getAsBytes() should throw exception when resource does not exist").isInstanceOf(RuntimeException.class)
         .hasMessage("Resource does not exist");
   }
 
@@ -55,9 +54,9 @@ class ResourceTest {
   void getAsInputStream_shouldReturnCorrectInputStream() {
     String content = "test content";
     TestResource resource = new TestResource(true, content);
-    
+
     InputStream result = resource.getAsInputStream();
-    
+
     assertThat(result).as("getAsInputStream() should return correct InputStream").isNotNull();
     assertThat(result).as("getAsInputStream() should return ByteArrayInputStream")
         .isInstanceOf(ByteArrayInputStream.class);
@@ -66,30 +65,28 @@ class ResourceTest {
   @Test
   void getAsInputStream_shouldThrowException_whenResourceDoesNotExist() {
     TestResource resource = new TestResource(false);
-    
+
     assertThatThrownBy(() -> resource.getAsInputStream())
         .as("getAsInputStream() should throw exception when resource does not exist")
-        .isInstanceOf(RuntimeException.class)
-        .hasMessage("Resource does not exist");
+        .isInstanceOf(RuntimeException.class).hasMessage("Resource does not exist");
   }
 
   @Test
   void getAsString_shouldReturnCorrectString() {
     String content = "test content";
     TestResource resource = new TestResource(true, content);
-    
+
     String result = resource.getAsString();
-    
+
     assertThat(result).as("getAsString() should return correct string").isEqualTo(content);
   }
 
   @Test
   void getAsString_shouldThrowException_whenResourceDoesNotExist() {
     TestResource resource = new TestResource(false);
-    
+
     assertThatThrownBy(() -> resource.getAsString())
-        .as("getAsString() should throw exception when resource does not exist")
-        .isInstanceOf(RuntimeException.class)
+        .as("getAsString() should throw exception when resource does not exist").isInstanceOf(RuntimeException.class)
         .hasMessage("Resource does not exist");
   }
 
@@ -97,10 +94,9 @@ class ResourceTest {
   @EnumSource(PathConversionStrategy.class)
   void getAsPath_shouldThrowException_whenResourceDoesNotExist(PathConversionStrategy strategy) {
     TestResource resource = new TestResource(false);
-    
+
     assertThatThrownBy(() -> resource.getAsPath(strategy))
-        .as("getAsPath() should throw exception when resource does not exist")
-        .isInstanceOf(RuntimeException.class)
+        .as("getAsPath() should throw exception when resource does not exist").isInstanceOf(RuntimeException.class)
         .hasMessage("Resource does not exist");
   }
 
@@ -108,19 +104,18 @@ class ResourceTest {
   void getAsPath_shouldReturnPath_whenResourceExists() {
     TestResource resource = new TestResource(true, "test content");
     resource.setPath(Path.of("/test/path"));
-    
+
     Path result = resource.getAsPath(PathConversionStrategy.STRICT);
-    
+
     assertThat(result).as("getAsPath() should return correct Path").isEqualTo(Path.of("/test/path"));
   }
 
   @Test
   void getAsPath_shouldThrowException_whenPathIsNotSet() {
     TestResource resource = new TestResource(true, "test content");
-    
+
     assertThatThrownBy(() -> resource.getAsPath(PathConversionStrategy.STRICT))
-        .as("getAsPath() should throw exception when path is not set")
-        .isInstanceOf(RuntimeException.class)
+        .as("getAsPath() should throw exception when path is not set").isInstanceOf(RuntimeException.class)
         .hasMessage("Path not set");
   }
 

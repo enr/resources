@@ -12,18 +12,18 @@ class ResourceLocationTest {
   @Test
   void supports_shouldReturnTrue_whenLocationSupportsUri() {
     TestResourceLocation location = new TestResourceLocation(true);
-    
+
     boolean result = location.supports("test-uri");
-    
+
     assertThat(result).as("supports() should return true when location supports URI").isTrue();
   }
 
   @Test
   void supports_shouldReturnFalse_whenLocationDoesNotSupportUri() {
     TestResourceLocation location = new TestResourceLocation(false);
-    
+
     boolean result = location.supports("test-uri");
-    
+
     assertThat(result).as("supports() should return false when location does not support URI").isFalse();
   }
 
@@ -31,18 +31,18 @@ class ResourceLocationTest {
   @ValueSource(strings = {"file:///path/to/file", "classpath:resource.txt", "http://example.com", "custom://uri"})
   void supports_shouldWorkWithDifferentUriTypes(String uri) {
     TestResourceLocation location = new TestResourceLocation(true);
-    
+
     boolean result = location.supports(uri);
-    
+
     assertThat(result).as("supports() should work with URI: " + uri).isTrue();
   }
 
   @Test
   void supports_shouldHandleNullUri() {
     TestResourceLocation location = new TestResourceLocation(true);
-    
+
     boolean result = location.supports(null);
-    
+
     assertThat(result).as("supports() should handle null URI").isTrue();
   }
 
@@ -50,18 +50,18 @@ class ResourceLocationTest {
   void get_shouldReturnResource() {
     TestResource resource = new TestResource();
     TestResourceLocation location = new TestResourceLocation(true, resource);
-    
+
     Resource result = location.get("test-uri");
-    
+
     assertThat(result).as("get() should return correct resource").isEqualTo(resource);
   }
 
   @Test
   void get_shouldReturnNull_whenLocationDoesNotSupportUri() {
     TestResourceLocation location = new TestResourceLocation(false, null);
-    
+
     Resource result = location.get("test-uri");
-    
+
     assertThat(result).as("get() should return null when location does not support URI").isNull();
   }
 
@@ -70,9 +70,9 @@ class ResourceLocationTest {
   void get_shouldWorkWithDifferentUriTypes(String uri) {
     TestResource resource = new TestResource();
     TestResourceLocation location = new TestResourceLocation(true, resource);
-    
+
     Resource result = location.get(uri);
-    
+
     assertThat(result).as("get() should work with URI: " + uri).isEqualTo(resource);
   }
 
@@ -80,20 +80,18 @@ class ResourceLocationTest {
   void get_shouldHandleNullUri() {
     TestResource resource = new TestResource();
     TestResourceLocation location = new TestResourceLocation(true, resource);
-    
+
     Resource result = location.get(null);
-    
+
     assertThat(result).as("get() should handle null URI").isEqualTo(resource);
   }
 
   @Test
   void get_shouldThrowException_whenLocationThrowsException() {
     TestResourceLocation location = new TestResourceLocation(true, null, true);
-    
-    assertThatThrownBy(() -> location.get("test-uri"))
-        .as("get() should throw exception when location throws exception")
-        .isInstanceOf(RuntimeException.class)
-        .hasMessage("Test exception");
+
+    assertThatThrownBy(() -> location.get("test-uri")).as("get() should throw exception when location throws exception")
+        .isInstanceOf(RuntimeException.class).hasMessage("Test exception");
   }
 
   // Test helper classes
