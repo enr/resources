@@ -74,22 +74,7 @@ public class HttpResource implements Resource {
 
   @Override
   public String getAsString() {
-    try {
-      byte[] bytes = getAsBytes();
-      return new String(bytes, StandardCharsets.UTF_8);
-    } catch (Exception e) {
-      throw new ResourceLoadingException("Error reading HTTP resource as string: " + location, e);
-    }
-  }
-
-  @Override
-  public byte[] getAsBytes(Charset charset) {
-    try {
-      byte[] bytes = getAsBytes();
-      return new String(bytes, StandardCharsets.UTF_8).getBytes(charset);
-    } catch (Exception e) {
-      throw new ResourceLoadingException("Error reading HTTP resource as bytes with charset: " + location, e);
-    }
+    return getAsString(StandardCharsets.UTF_8);
   }
 
   @Override

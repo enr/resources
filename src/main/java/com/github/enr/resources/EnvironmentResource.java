@@ -51,14 +51,8 @@ public class EnvironmentResource implements Resource {
   }
 
   @Override
-  public byte[] getAsBytes(Charset charset) {
-    return getAsString().getBytes(charset);
-  }
-
-  @Override
   public String getAsString(Charset charset) {
-    String value = getAsString();
-    return new String(value.getBytes(StandardCharsets.UTF_8), charset);
+    return getAsString();
   }
 
   @Override

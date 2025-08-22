@@ -13,14 +13,6 @@ public interface Resource {
 
   byte[] getAsBytes();
 
-  /**
-   * Gets the resource content as bytes using the specified charset.
-   *
-   * @param charset the charset to use for encoding
-   * @return the resource content as bytes
-   */
-  byte[] getAsBytes(Charset charset);
-
   InputStream getAsInputStream();
 
   String getAsString();

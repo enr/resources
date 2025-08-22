@@ -35,11 +35,6 @@ public class UnreadableResource implements Resource {
   }
 
   @Override
-  public byte[] getAsBytes(Charset charset) {
-    throw new ResourceLoadingException(UNREADABLE_RESOURCE_TPL.formatted(location));
-  }
-
-  @Override
   public String getAsString(Charset charset) {
     throw new ResourceLoadingException(UNREADABLE_RESOURCE_TPL.formatted(location));
   }

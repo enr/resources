@@ -43,21 +43,7 @@ public class FileSystemResource implements Resource {
 
   @Override
   public String getAsString() {
-    try {
-      return Files.readString(path, StandardCharsets.UTF_8);
-    } catch (IOException e) {
-      throw new ResourceLoadingException(ERROR_READING_RESOURCE_TPL.formatted(path), e);
-    }
-  }
-
-  @Override
-  public byte[] getAsBytes(Charset charset) {
-    try {
-      String content = Files.readString(path, StandardCharsets.UTF_8);
-      return content.getBytes(charset);
-    } catch (IOException e) {
-      throw new ResourceLoadingException(ERROR_READING_RESOURCE_TPL.formatted(path), e);
-    }
+    return getAsString(StandardCharsets.UTF_8);
   }
 
   @Override

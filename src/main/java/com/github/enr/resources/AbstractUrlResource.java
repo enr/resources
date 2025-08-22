@@ -54,20 +54,7 @@ abstract class AbstractUrlResource implements Resource {
 
   @Override
   public String getAsString() {
-    return new String(getAsBytes(), StandardCharsets.UTF_8);
-  }
-
-  @Override
-  public byte[] getAsBytes(Charset charset) {
-    try (InputStream is = getAsInputStream()) {
-      if (is == null) {
-        return new byte[0];
-      }
-      byte[] bytes = is.readAllBytes();
-      return new String(bytes, StandardCharsets.UTF_8).getBytes(charset);
-    } catch (IOException e) {
-      throw new ResourceLoadingException("error loading resource %s".formatted(location), e);
-    }
+    return getAsString(StandardCharsets.UTF_8);
   }
 
   @Override
