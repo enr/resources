@@ -3,6 +3,7 @@ package com.github.enr.resources;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,6 +48,17 @@ public class EnvironmentResource implements Resource {
       throw new ResourceLoadingException("no environment variable %s".formatted(key));
     }
     return value;
+  }
+
+  @Override
+  public byte[] getAsBytes(Charset charset) {
+    return getAsString().getBytes(charset);
+  }
+
+  @Override
+  public String getAsString(Charset charset) {
+    String value = getAsString();
+    return new String(value.getBytes(StandardCharsets.UTF_8), charset);
   }
 
   @Override

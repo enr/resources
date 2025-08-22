@@ -3,6 +3,7 @@ package com.github.enr.resources;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -54,6 +55,24 @@ abstract class AbstractUrlResource implements Resource {
   @Override
   public String getAsString() {
     return new String(getAsBytes(), StandardCharsets.UTF_8);
+  }
+
+  @Override
+  public byte[] getAsBytes(Charset charset) {
+    try (InputStream is = getAsInputStream()) {
+      if (is == null) {
+        return new byte[0];
+      }
+      byte[] bytes = is.readAllBytes();
+      return new String(bytes, StandardCharsets.UTF_8).getBytes(charset);
+    } catch (IOException e) {
+      throw new ResourceLoadingException("error loading resource %s".formatted(location), e);
+    }
+  }
+
+  @Override
+  public String getAsString(Charset charset) {
+    return new String(getAsBytes(), charset);
   }
 
   @Override

@@ -2,6 +2,7 @@ package com.github.enr.resources;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,6 +45,25 @@ public class FileSystemResource implements Resource {
   public String getAsString() {
     try {
       return Files.readString(path, StandardCharsets.UTF_8);
+    } catch (IOException e) {
+      throw new ResourceLoadingException(ERROR_READING_RESOURCE_TPL.formatted(path), e);
+    }
+  }
+
+  @Override
+  public byte[] getAsBytes(Charset charset) {
+    try {
+      String content = Files.readString(path, StandardCharsets.UTF_8);
+      return content.getBytes(charset);
+    } catch (IOException e) {
+      throw new ResourceLoadingException(ERROR_READING_RESOURCE_TPL.formatted(path), e);
+    }
+  }
+
+  @Override
+  public String getAsString(Charset charset) {
+    try {
+      return Files.readString(path, charset);
     } catch (IOException e) {
       throw new ResourceLoadingException(ERROR_READING_RESOURCE_TPL.formatted(path), e);
     }

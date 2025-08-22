@@ -1,6 +1,7 @@
 package com.github.enr.resources;
 
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 
 /*
@@ -12,9 +13,25 @@ public interface Resource {
 
   byte[] getAsBytes();
 
+  /**
+   * Gets the resource content as bytes using the specified charset.
+   *
+   * @param charset the charset to use for encoding
+   * @return the resource content as bytes
+   */
+  byte[] getAsBytes(Charset charset);
+
   InputStream getAsInputStream();
 
   String getAsString();
+
+  /**
+   * Gets the resource content as a string using the specified charset.
+   *
+   * @param charset the charset to use for decoding
+   * @return the resource content as a string
+   */
+  String getAsString(Charset charset);
 
   /**
    * Converts this resource to a Path using the specified conversion strategy.

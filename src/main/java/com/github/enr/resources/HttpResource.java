@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -78,6 +79,26 @@ public class HttpResource implements Resource {
       return new String(bytes, StandardCharsets.UTF_8);
     } catch (Exception e) {
       throw new ResourceLoadingException("Error reading HTTP resource as string: " + location, e);
+    }
+  }
+
+  @Override
+  public byte[] getAsBytes(Charset charset) {
+    try {
+      byte[] bytes = getAsBytes();
+      return new String(bytes, StandardCharsets.UTF_8).getBytes(charset);
+    } catch (Exception e) {
+      throw new ResourceLoadingException("Error reading HTTP resource as bytes with charset: " + location, e);
+    }
+  }
+
+  @Override
+  public String getAsString(Charset charset) {
+    try {
+      byte[] bytes = getAsBytes();
+      return new String(bytes, charset);
+    } catch (Exception e) {
+      throw new ResourceLoadingException("Error reading HTTP resource as string with charset: " + location, e);
     }
   }
 

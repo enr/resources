@@ -1,6 +1,7 @@
 package com.github.enr.resources;
 
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 
 public class UnreadableResource implements Resource {
@@ -30,6 +31,16 @@ public class UnreadableResource implements Resource {
 
   @Override
   public String getAsString() {
+    throw new ResourceLoadingException(UNREADABLE_RESOURCE_TPL.formatted(location));
+  }
+
+  @Override
+  public byte[] getAsBytes(Charset charset) {
+    throw new ResourceLoadingException(UNREADABLE_RESOURCE_TPL.formatted(location));
+  }
+
+  @Override
+  public String getAsString(Charset charset) {
     throw new ResourceLoadingException(UNREADABLE_RESOURCE_TPL.formatted(location));
   }
 
