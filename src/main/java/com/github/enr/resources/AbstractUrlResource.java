@@ -38,7 +38,7 @@ abstract class AbstractUrlResource implements Resource {
         return new byte[0];
       }
       return is.readAllBytes();
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw new ResourceLoadingException("error loading resource %s".formatted(location), e);
     }
   }
