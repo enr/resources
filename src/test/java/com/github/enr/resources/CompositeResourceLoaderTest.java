@@ -210,6 +210,11 @@ class CompositeResourceLoaderTest {
     }
 
     @Override
+    public String getAsString(java.nio.charset.Charset charset) {
+      return content;
+    }
+
+    @Override
     public java.nio.file.Path getAsPath(PathConversionStrategy strategy) {
       throw new UnsupportedOperationException("Not implemented for test");
     }

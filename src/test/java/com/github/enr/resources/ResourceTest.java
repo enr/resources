@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.Test;
@@ -165,6 +166,11 @@ class ResourceTest {
         throw new RuntimeException("Resource does not exist");
       }
       return content;
+    }
+
+    @Override
+    public String getAsString(Charset charset) {
+      return getAsString();
     }
 
     @Override
