@@ -52,4 +52,20 @@ class DefaultResourceLoaderTest {
     Assertions.assertThrows(ResourceLoadingException.class, () -> resource.getAsString());
   }
 
+  @Test
+  void testFileUri_shouldRouteToFileSystemResource_notUrlResource() throws IOException {
+    String content = "file-uri-content";
+    Path tmp = Files.createTempFile("test-fileuri-", ".tmp");
+    Files.writeString(tmp, content);
+
+    ResourceLoader resourceLoader = ResourceLoader.defaultInstance();
+    // file:// URIs must not be claimed by UrlLocation and must reach FileSystemLocation
+    Resource resource = resourceLoader.get(tmp.toUri().toString());
+    assertThat(resource).as("file:// URI must resolve to FileSystemResource").isInstanceOf(FileSystemResource.class);
+    assertThat(resource.exists()).isTrue();
+    assertThat(resource.getAsString()).isEqualTo(content);
+
+    Files.deleteIfExists(tmp);
+  }
+
 }

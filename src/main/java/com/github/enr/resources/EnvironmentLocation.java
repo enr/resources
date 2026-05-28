@@ -18,7 +18,7 @@ public class EnvironmentLocation implements ResourceLocation {
 
   @Override
   public Resource get(String location) {
-    return new EnvironmentResource(Strings.removeStart(location, PREFIX), env);
+    return new EnvironmentResource(Strings.removeStart(location.trim(), PREFIX), env);
   }
 
   @Override

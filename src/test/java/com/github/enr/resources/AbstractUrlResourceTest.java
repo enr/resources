@@ -134,8 +134,23 @@ class AbstractUrlResourceTest {
     resource.setUrl(Optional.of(new URL("http://example.com")));
 
     assertThatThrownBy(() -> resource.getAsPath(PathConversionStrategy.STRICT))
-        .as("getAsPath() should throw ResourceLoadingException with STRICT strategy")
-        .isInstanceOf(ResourceLoadingException.class);
+        .as("STRICT strategy must throw with its own message, not a generic wrapper")
+        .isInstanceOf(ResourceLoadingException.class)
+        .hasMessageContaining("STRICT");
+  }
+
+  @Test
+  void getAsPath_shouldDeleteTempFile_whenGetAsInputStreamThrows() throws MalformedURLException {
+    TestUrlResource resource = new TestUrlResource("test-location");
+    resource.setUrl(Optional.of(new URL("http://example.com")));
+    resource.setInputStreamToThrowException(true);
+
+    assertThatThrownBy(() -> resource.getAsPath(PathConversionStrategy.LENIENT))
+        .isInstanceOf(RuntimeException.class);
+
+    java.io.File[] orphans = new java.io.File(System.getProperty("java.io.tmpdir"))
+        .listFiles((d, n) -> n.startsWith("resource-") && n.endsWith(".tmp"));
+    assertThat(orphans).as("no orphaned temp files after failed getAsPath").isEmpty();
   }
 
   @Test

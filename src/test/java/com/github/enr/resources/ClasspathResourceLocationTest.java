@@ -29,7 +29,10 @@ class ClasspathResourceLocationTest {
     return Stream.of(new ResourceContentsTestCase("classpath:com/github/enr/resources/cp-01.txt", "test cp-01 txt"),
         new ResourceContentsTestCase("classpath:/com/github/enr/resources/cp-01.txt", "test cp-01 txt"),
         new ResourceContentsTestCase("classpath:cp-02.txt", "test cp-02 txt"),
-        new ResourceContentsTestCase("classpath:/cp-02.txt", "test cp-02 txt"));
+        new ResourceContentsTestCase("classpath:/cp-02.txt", "test cp-02 txt"),
+        // leading/trailing whitespace must be trimmed before prefix removal
+        new ResourceContentsTestCase(" classpath:cp-02.txt", "test cp-02 txt"),
+        new ResourceContentsTestCase(" classpath:/com/github/enr/resources/cp-01.txt ", "test cp-01 txt"));
   }
 
   @ParameterizedTest

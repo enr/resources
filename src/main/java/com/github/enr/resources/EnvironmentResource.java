@@ -52,7 +52,7 @@ public class EnvironmentResource implements Resource {
 
   @Override
   public String getAsString(Charset charset) {
-    return getAsString();
+    return new String(getAsBytes(), charset);
   }
 
   @Override
@@ -65,16 +65,26 @@ public class EnvironmentResource implements Resource {
 
         case LENIENT:
         case FORCE_TEMPORARY:
-          // Create a temporary file with the environment variable content
           Path tempFile = Files.createTempFile("env-" + key + "-", ".tmp");
+          boolean success = false;
           try (InputStream is = getAsInputStream()) {
             Files.copy(is, tempFile, StandardCopyOption.REPLACE_EXISTING);
+            success = true;
+          } finally {
+            if (!success) {
+              try {
+                Files.deleteIfExists(tempFile);
+              } catch (IOException ignored) {
+              }
+            }
           }
           return tempFile;
 
         default:
           throw new ResourceLoadingException("Unknown conversion strategy: %s".formatted(strategy));
       }
+    } catch (ResourceLoadingException e) {
+      throw e;
     } catch (IOException e) {
       throw new ResourceLoadingException("Error creating temporary file for environment variable: %s".formatted(key),
           e);

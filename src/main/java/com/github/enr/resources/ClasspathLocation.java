@@ -8,7 +8,7 @@ public class ClasspathLocation implements ResourceLocation {
   public Resource get(String location) {
     ClassLoader loader =
         firstNonNull(Thread.currentThread().getContextClassLoader(), ClasspathResource.class.getClassLoader());
-    return new ClasspathResource(Strings.removeStart(location, PREFIX), loader);
+    return new ClasspathResource(Strings.removeStart(location.trim(), PREFIX), loader);
   }
 
   @Override

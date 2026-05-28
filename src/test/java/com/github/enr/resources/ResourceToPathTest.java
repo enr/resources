@@ -1,110 +1,88 @@
 package com.github.enr.resources;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
+import com.github.enr.system.EnvironmentSource;
 
 class ResourceToPathTest {
 
   @Test
-  void testFileSystemResourceToPath() {
-    // Create a temporary file for testing
+  void fileSystemResource_getAsPath_returnsOriginalPath(@TempDir Path dir) throws IOException {
+    Path file = dir.resolve("sample.txt");
+    Files.writeString(file, "test content");
+
+    FileSystemResource resource = new FileSystemResource(file.toString());
+
+    assertThat(resource.getAsPath()).isEqualTo(file.toAbsolutePath().normalize());
+    assertThat(resource.getAsPath(PathConversionStrategy.STRICT)).isEqualTo(file.toAbsolutePath().normalize());
+    assertThat(resource.getAsPath(PathConversionStrategy.LENIENT)).isEqualTo(file.toAbsolutePath().normalize());
+    assertThat(resource.getAsPath(PathConversionStrategy.FORCE_TEMPORARY)).isEqualTo(file.toAbsolutePath().normalize());
+  }
+
+  @Test
+  void environmentResource_strict_throwsResourceLoadingException() {
+    EnvironmentResource resource = new EnvironmentResource("TEST_KEY", mapEnv("TEST_KEY", "value"));
+    assertThatThrownBy(() -> resource.getAsPath(PathConversionStrategy.STRICT))
+        .isInstanceOf(ResourceLoadingException.class)
+        .hasMessageContaining("STRICT");
+  }
+
+  @Test
+  void environmentResource_lenient_createsTempFileWithContents() throws IOException {
+    EnvironmentResource resource = new EnvironmentResource("MSG", mapEnv("MSG", "env-value"));
+    Path result = resource.getAsPath(PathConversionStrategy.LENIENT);
     try {
-      Path tempFile = Files.createTempFile("test", ".txt");
-      Files.writeString(tempFile, "test content");
-
-      FileSystemResource resource = new FileSystemResource(tempFile.toString());
-
-      // Test with default strategy (STRICT)
-      Path result = resource.getAsPath();
-      assertEquals(tempFile, result);
-
-      // Test with explicit STRICT strategy
-      Path resultStrict = resource.getAsPath(PathConversionStrategy.STRICT);
-      assertEquals(tempFile, resultStrict);
-
-      // Test with LENIENT strategy
-      Path resultLenient = resource.getAsPath(PathConversionStrategy.LENIENT);
-      assertEquals(tempFile, resultLenient);
-
-      // Test with FORCE_TEMPORARY strategy
-      Path resultForce = resource.getAsPath(PathConversionStrategy.FORCE_TEMPORARY);
-      assertEquals(tempFile, resultForce);
-
-      // Cleanup
-      Files.deleteIfExists(tempFile);
-    } catch (IOException e) {
-      fail("Test failed due to IO exception: " + e.getMessage());
+      assertThat(Files.exists(result)).isTrue();
+      assertThat(Files.readString(result)).isEqualTo("env-value");
+    } finally {
+      Files.deleteIfExists(result);
     }
   }
 
   @Test
-  void testEnvironmentResourceToPath() {
-    // Set a test environment variable
-    String testKey = "TEST_RESOURCE_PATH";
-    String testValue = "test environment value";
-
-    // Create environment resource with a mock environment source
-    EnvironmentResource resource = new EnvironmentResource(testKey, new com.github.enr.system.EnvironmentSource() {
-      @Override
-      public String getEnvironmentVar(String key) {
-        return testKey.equals(key) ? testValue : null;
-      }
-    });
-
-    // Test that STRICT strategy throws exception
-    assertThrows(ResourceLoadingException.class, () -> {
-      resource.getAsPath(PathConversionStrategy.STRICT);
-    });
-
-    // Test that LENIENT strategy creates temporary file
+  void environmentResource_forceTemporary_createsTempFileWithContents() throws IOException {
+    EnvironmentResource resource = new EnvironmentResource("MSG", mapEnv("MSG", "env-value"));
+    Path result = resource.getAsPath(PathConversionStrategy.FORCE_TEMPORARY);
     try {
-      Path result = resource.getAsPath(PathConversionStrategy.LENIENT);
-      assertTrue(Files.exists(result));
-      assertEquals(testValue, Files.readString(result));
-
-      // Cleanup
+      assertThat(Files.exists(result)).isTrue();
+      assertThat(Files.readString(result)).isEqualTo("env-value");
+    } finally {
       Files.deleteIfExists(result);
-    } catch (IOException e) {
-      fail("Test failed due to IO exception: " + e.getMessage());
-    }
-
-    // Test that FORCE_TEMPORARY strategy creates temporary file
-    try {
-      Path result = resource.getAsPath(PathConversionStrategy.FORCE_TEMPORARY);
-      assertTrue(Files.exists(result));
-      assertEquals(testValue, Files.readString(result));
-
-      // Cleanup
-      Files.deleteIfExists(result);
-    } catch (IOException e) {
-      fail("Test failed due to IO exception: " + e.getMessage());
     }
   }
 
   @Test
-  void testUnreadableResourceToPath() {
+  void unreadableResource_getAsPath_throwsForAllStrategies() {
     UnreadableResource resource = new UnreadableResource("unreadable://test");
+    for (PathConversionStrategy strategy : PathConversionStrategy.values()) {
+      assertThatThrownBy(() -> resource.getAsPath(strategy))
+          .isInstanceOf(ResourceLoadingException.class);
+    }
+    assertThatThrownBy(resource::getAsPath).isInstanceOf(ResourceLoadingException.class);
+  }
 
-    // Test that all strategies throw exception
-    assertThrows(ResourceLoadingException.class, () -> {
-      resource.getAsPath(PathConversionStrategy.STRICT);
-    });
+  private static EnvironmentSource mapEnv(String key, String value) {
+    return new EnvironmentSource() {
+      private final Map<String, String> map = Map.of(key, value);
 
-    assertThrows(ResourceLoadingException.class, () -> {
-      resource.getAsPath(PathConversionStrategy.LENIENT);
-    });
+      @Override
+      public Map<String, String> getEnv() {
+        return map;
+      }
 
-    assertThrows(ResourceLoadingException.class, () -> {
-      resource.getAsPath(PathConversionStrategy.FORCE_TEMPORARY);
-    });
-
-    assertThrows(ResourceLoadingException.class, () -> {
-      resource.getAsPath();
-    });
+      @Override
+      public String getEnvironmentVar(String k) {
+        return map.get(k);
+      }
+    };
   }
 }
