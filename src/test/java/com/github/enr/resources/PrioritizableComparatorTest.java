@@ -10,19 +10,6 @@ class PrioritizableComparatorTest {
 
   private final PrioritizableComparator comparator = new PrioritizableComparator();
 
-  @ParameterizedTest
-  @CsvSource({"10, 5, -5", // o1.priority() > o2.priority() -> positive
-      "5, 10, 5", // o1.priority() < o2.priority() -> negative
-      "7, 7, 0" // o1.priority() == o2.priority() -> zero
-  })
-  void compare_shouldReturnCorrectOrder(int priority1, int priority2, int expectedResult) {
-    Prioritizable o1 = createMockPrioritizable(priority1);
-    Prioritizable o2 = createMockPrioritizable(priority2);
-
-    int result = comparator.compare(o1, o2);
-    assertThat(result).as("compare(%d, %d)".formatted(priority1, priority2)).isEqualTo(expectedResult);
-  }
-
   @Test
   void compare_shouldReturnNegative_whenFirstHasHigherPriority() {
     Prioritizable highPriority = createMockPrioritizable(10);
@@ -50,23 +37,35 @@ class PrioritizableComparatorTest {
     assertThat(result).as("compare equal priorities").isZero();
   }
 
-  // @Test
-  // void compare_shouldHandleZeroPriority() {
-  // Prioritizable zeroPriority = createMockPrioritizable(0);
-  // Prioritizable positivePriority = createMockPrioritizable(5);
+  @Test
+  void compare_shouldHandleZeroPriority() {
+    Prioritizable zeroPriority = createMockPrioritizable(0);
+    Prioritizable positivePriority = createMockPrioritizable(5);
 
-  // int result = comparator.compare(zeroPriority, positivePriority);
-  // assertThat(result).as("compare zero priority vs positive priority").isNegative();
-  // }
+    int result = comparator.compare(zeroPriority, positivePriority);
+    assertThat(result).as("compare zero priority vs positive priority").isPositive();
+  }
 
-  // @Test
-  // void compare_shouldHandleNegativePriority() {
-  // Prioritizable negativePriority = createMockPrioritizable(-5);
-  // Prioritizable positivePriority = createMockPrioritizable(5);
+  @Test
+  void compare_shouldHandleNegativePriority() {
+    Prioritizable negativePriority = createMockPrioritizable(-5);
+    Prioritizable positivePriority = createMockPrioritizable(5);
 
-  // int result = comparator.compare(negativePriority, positivePriority);
-  // assertThat(result).as("compare negative priority vs positive priority").isNegative();
-  // }
+    int result = comparator.compare(negativePriority, positivePriority);
+    assertThat(result).as("compare negative priority vs positive priority").isPositive();
+  }
+
+  @Test
+  void compare_shouldNotOverflow_withExtremeValues() {
+    Prioritizable maxPriority = createMockPrioritizable(Integer.MAX_VALUE);
+    Prioritizable minPriority = createMockPrioritizable(Integer.MIN_VALUE);
+
+    // Integer.MAX_VALUE - Integer.MIN_VALUE overflows to negative; Integer.compare does not
+    assertThat(comparator.compare(maxPriority, minPriority))
+        .as("MAX_VALUE should sort before MIN_VALUE (result must be negative)").isNegative();
+    assertThat(comparator.compare(minPriority, maxPriority))
+        .as("MIN_VALUE should sort after MAX_VALUE (result must be positive)").isPositive();
+  }
 
   private Prioritizable createMockPrioritizable(int priority) {
     return new Prioritizable() {

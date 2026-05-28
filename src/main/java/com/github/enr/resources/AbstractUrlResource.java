@@ -79,23 +79,20 @@ abstract class AbstractUrlResource implements Resource {
         }
       }
 
-      // Handle different strategies
       switch (strategy) {
         case STRICT:
           throw new ResourceLoadingException(
               "Cannot convert URL resource to Path with STRICT strategy: %s".formatted(location));
 
         case LENIENT:
-          // Try to create a temporary file if direct conversion is not possible
-          return createTemporaryFile();
-
         case FORCE_TEMPORARY:
-          // Always create a temporary file
           return createTemporaryFile();
 
         default:
           throw new ResourceLoadingException("Unknown conversion strategy: %s".formatted(strategy));
       }
+    } catch (ResourceLoadingException e) {
+      throw e;
     } catch (Exception e) {
       throw new ResourceLoadingException("Error converting resource to Path: %s".formatted(location), e);
     }
@@ -103,8 +100,17 @@ abstract class AbstractUrlResource implements Resource {
 
   private Path createTemporaryFile() throws IOException {
     Path tempFile = Files.createTempFile("resource-", ".tmp");
+    boolean success = false;
     try (InputStream is = getAsInputStream()) {
       Files.copy(is, tempFile, StandardCopyOption.REPLACE_EXISTING);
+      success = true;
+    } finally {
+      if (!success) {
+        try {
+          Files.deleteIfExists(tempFile);
+        } catch (IOException ignored) {
+        }
+      }
     }
     return tempFile;
   }

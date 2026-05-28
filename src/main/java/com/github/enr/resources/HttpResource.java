@@ -1,5 +1,6 @@
 package com.github.enr.resources;
 
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -28,25 +29,26 @@ public class HttpResource implements Resource {
 
   @Override
   public boolean exists() {
+    HttpURLConnection connection = null;
     try {
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+      connection = (HttpURLConnection) url.openConnection();
       connection.setRequestMethod("HEAD");
       connection.setConnectTimeout(5000);
       connection.setReadTimeout(5000);
-
       int responseCode = connection.getResponseCode();
       return responseCode >= 200 && responseCode < 400;
     } catch (Exception e) {
       return false;
+    } finally {
+      if (connection != null) {
+        connection.disconnect();
+      }
     }
   }
 
   @Override
   public byte[] getAsBytes() {
     try (InputStream is = getAsInputStream()) {
-      if (is == null) {
-        return new byte[0];
-      }
       return is.readAllBytes();
     } catch (IOException e) {
       throw new ResourceLoadingException("Error reading HTTP resource as bytes: " + location, e);
@@ -55,19 +57,36 @@ public class HttpResource implements Resource {
 
   @Override
   public InputStream getAsInputStream() {
+    HttpURLConnection connection = null;
     try {
-      HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+      connection = (HttpURLConnection) url.openConnection();
       connection.setConnectTimeout(10000);
       connection.setReadTimeout(30000);
       connection.setRequestProperty("User-Agent", "HttpResource/1.0");
 
       int responseCode = connection.getResponseCode();
       if (responseCode >= 200 && responseCode < 400) {
-        return connection.getInputStream();
+        final HttpURLConnection conn = connection;
+        return new FilterInputStream(connection.getInputStream()) {
+          @Override
+          public void close() throws IOException {
+            try {
+              super.close();
+            } finally {
+              conn.disconnect();
+            }
+          }
+        };
       } else {
+        connection.disconnect();
         throw new ResourceLoadingException("HTTP error " + responseCode + " for URL: " + location);
       }
+    } catch (ResourceLoadingException e) {
+      throw e;
     } catch (IOException e) {
+      if (connection != null) {
+        connection.disconnect();
+      }
       throw new ResourceLoadingException("Error opening HTTP connection: " + location, e);
     }
   }
@@ -96,11 +115,17 @@ public class HttpResource implements Resource {
 
         case LENIENT:
         case FORCE_TEMPORARY:
-          // Create a temporary file with the HTTP resource content
           Path tempFile = Files.createTempFile("http-resource-", ".tmp");
+          boolean success = false;
           try (InputStream is = getAsInputStream()) {
-            if (is != null) {
-              Files.copy(is, tempFile, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(is, tempFile, StandardCopyOption.REPLACE_EXISTING);
+            success = true;
+          } finally {
+            if (!success) {
+              try {
+                Files.deleteIfExists(tempFile);
+              } catch (IOException ignored) {
+              }
             }
           }
           return tempFile;
@@ -108,6 +133,8 @@ public class HttpResource implements Resource {
         default:
           throw new ResourceLoadingException("Unknown conversion strategy: %s".formatted(strategy));
       }
+    } catch (ResourceLoadingException e) {
+      throw e;
     } catch (IOException e) {
       throw new ResourceLoadingException("Error creating temporary file for HTTP resource", e);
     }
