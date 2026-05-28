@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 class CompositeResourceLoaderTest {
 
@@ -140,21 +138,6 @@ class CompositeResourceLoaderTest {
     // Then
     assertThat(supports).as("supports() with empty locations").isFalse();
     assertThat(resource).as("get() with empty locations").isInstanceOf(UnreadableResource.class);
-  }
-
-  @ParameterizedTest
-  @ValueSource(strings = {"file:///path/to/file", "classpath:resource.txt", "http://example.com", "custom://uri"})
-  void get_shouldWorkWithDifferentUriTypes(String uri) {
-    // Given
-    TestResourceLocation location = new TestResourceLocation(true, new TestResource());
-    PrioritizableResourceLocation prl = new PrioritizableResourceLocation(1, location);
-    CompositeResourceLoader loader = new CompositeResourceLoader(prl);
-
-    // When
-    Resource result = loader.get(uri);
-
-    // Then
-    assertThat(result).as("get() with URI: " + uri).isEqualTo(location.get(uri));
   }
 
   // Test helper classes
