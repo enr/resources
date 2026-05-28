@@ -65,8 +65,7 @@ class HttpResourceTest {
       server.start();
 
       HttpResource resource = new HttpResource(server.url("/").toString());
-      assertThatThrownBy(resource::getAsInputStream)
-          .isInstanceOf(ResourceLoadingException.class)
+      assertThatThrownBy(resource::getAsInputStream).isInstanceOf(ResourceLoadingException.class)
           .hasMessageContaining("500");
     }
   }
@@ -92,8 +91,7 @@ class HttpResourceTest {
 
       HttpResource resource = new HttpResource(server.url("/").toString());
       assertThatThrownBy(() -> resource.getAsPath(PathConversionStrategy.STRICT))
-          .isInstanceOf(ResourceLoadingException.class)
-          .hasMessageContaining("STRICT");
+          .isInstanceOf(ResourceLoadingException.class).hasMessageContaining("STRICT");
     }
   }
 

@@ -32,8 +32,7 @@ class ResourceToPathTest {
   void environmentResource_strict_throwsResourceLoadingException() {
     EnvironmentResource resource = new EnvironmentResource("TEST_KEY", mapEnv("TEST_KEY", "value"));
     assertThatThrownBy(() -> resource.getAsPath(PathConversionStrategy.STRICT))
-        .isInstanceOf(ResourceLoadingException.class)
-        .hasMessageContaining("STRICT");
+        .isInstanceOf(ResourceLoadingException.class).hasMessageContaining("STRICT");
   }
 
   @Test
@@ -64,8 +63,7 @@ class ResourceToPathTest {
   void unreadableResource_getAsPath_throwsForAllStrategies() {
     UnreadableResource resource = new UnreadableResource("unreadable://test");
     for (PathConversionStrategy strategy : PathConversionStrategy.values()) {
-      assertThatThrownBy(() -> resource.getAsPath(strategy))
-          .isInstanceOf(ResourceLoadingException.class);
+      assertThatThrownBy(() -> resource.getAsPath(strategy)).isInstanceOf(ResourceLoadingException.class);
     }
     assertThatThrownBy(resource::getAsPath).isInstanceOf(ResourceLoadingException.class);
   }

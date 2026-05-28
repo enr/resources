@@ -22,8 +22,7 @@ class EnvironmentResourceTest {
     EnvironmentResource r = resource("KEY", "hello");
     // After the fix: getAsString(charset) == new String(getAsBytes(), charset)
     byte[] bytes = r.getAsBytes();
-    assertThat(r.getAsString(StandardCharsets.UTF_8))
-        .isEqualTo(new String(bytes, StandardCharsets.UTF_8));
+    assertThat(r.getAsString(StandardCharsets.UTF_8)).isEqualTo(new String(bytes, StandardCharsets.UTF_8));
   }
 
   @Test
@@ -52,9 +51,7 @@ class EnvironmentResourceTest {
   void getAsString_throwsResourceLoadingException_forMissingKey() {
     EnvironmentSource env = new MapEnvironmentSource(Map.of());
     EnvironmentResource r = new EnvironmentResource("MISSING_KEY", env);
-    assertThatThrownBy(r::getAsString)
-        .isInstanceOf(ResourceLoadingException.class)
-        .hasMessageContaining("MISSING_KEY");
+    assertThatThrownBy(r::getAsString).isInstanceOf(ResourceLoadingException.class).hasMessageContaining("MISSING_KEY");
   }
 
   @Test

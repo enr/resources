@@ -135,8 +135,7 @@ class AbstractUrlResourceTest {
 
     assertThatThrownBy(() -> resource.getAsPath(PathConversionStrategy.STRICT))
         .as("STRICT strategy must throw with its own message, not a generic wrapper")
-        .isInstanceOf(ResourceLoadingException.class)
-        .hasMessageContaining("STRICT");
+        .isInstanceOf(ResourceLoadingException.class).hasMessageContaining("STRICT");
   }
 
   @Test
@@ -145,8 +144,7 @@ class AbstractUrlResourceTest {
     resource.setUrl(Optional.of(new URL("http://example.com")));
     resource.setInputStreamToThrowException(true);
 
-    assertThatThrownBy(() -> resource.getAsPath(PathConversionStrategy.LENIENT))
-        .isInstanceOf(RuntimeException.class);
+    assertThatThrownBy(() -> resource.getAsPath(PathConversionStrategy.LENIENT)).isInstanceOf(RuntimeException.class);
 
     java.io.File[] orphans = new java.io.File(System.getProperty("java.io.tmpdir"))
         .listFiles((d, n) -> n.startsWith("resource-") && n.endsWith(".tmp"));
