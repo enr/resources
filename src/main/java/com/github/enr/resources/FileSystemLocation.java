@@ -4,6 +4,8 @@ import java.lang.System.Logger.Level;
 import java.lang.invoke.MethodHandles;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.Path;
 import java.util.Objects;
 
 public class FileSystemLocation implements ResourceLocation {
@@ -16,7 +18,9 @@ public class FileSystemLocation implements ResourceLocation {
   @Override
   public Resource get(String location) {
     String path = Objects.requireNonNull(location, "uri must not be null").trim();
-    path = Strings.removeStart(path, RESOURCE_PREFIX);
+    if (hasFileScheme(path)) {
+      path = fileUriToPath(path);
+    }
     path = FilePath.absoluteNormalized(path);
     return new FileSystemResource(path);
   }
@@ -30,7 +34,7 @@ public class FileSystemLocation implements ResourceLocation {
     try {
 
       URI uri = new URI(path);
-      if (uri.getScheme() == null || URI_SCHEME.equals(uri.getScheme()) ||
+      if (uri.getScheme() == null || URI_SCHEME.equalsIgnoreCase(uri.getScheme()) ||
       // could be Windows drive
           uri.getScheme().length() == 1) {
         return true;
@@ -39,6 +43,27 @@ public class FileSystemLocation implements ResourceLocation {
       LOG.log(Level.WARNING, "Error parsing resource path '{0}': {1}", path, e.getMessage());
     }
     return false;
+  }
+
+  private static boolean hasFileScheme(String location) {
+    return location.regionMatches(true, 0, RESOURCE_PREFIX, 0, RESOURCE_PREFIX.length());
+  }
+
+  /**
+   * Converts a {@code file:} URI to a path, decoding percent-encoded characters and handling forms
+   * like {@code file:///C:/dir}. Falls back to stripping the scheme for inputs that are not valid
+   * hierarchical URIs (e.g. {@code file:relative/path} or paths with unencoded spaces).
+   */
+  private static String fileUriToPath(String location) {
+    try {
+      URI uri = new URI(location);
+      if (!uri.isOpaque() && uri.getAuthority() == null) {
+        return Path.of(uri).toString();
+      }
+    } catch (URISyntaxException | IllegalArgumentException | FileSystemNotFoundException e) {
+      // not a valid file URI: use the raw path
+    }
+    return location.substring(RESOURCE_PREFIX.length());
   }
 
   private String clean(String location) {

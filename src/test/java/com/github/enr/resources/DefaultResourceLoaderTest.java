@@ -47,8 +47,8 @@ class DefaultResourceLoaderTest {
     ResourceLoader resourceLoader = ResourceLoader.defaultInstance();
     Resource resource = resourceLoader.get("http://localhost:8099");
     assertThat(resource).as("resource").isInstanceOf(UrlResource.class);
-    // an http url is considered "exists"
-    assertThat(resource.exists()).as("resource exists").isTrue();
+    // nothing listens on the port: the resource is not reachable
+    assertThat(resource.exists()).as("resource exists").isFalse();
     Assertions.assertThrows(ResourceLoadingException.class, () -> resource.getAsString());
   }
 

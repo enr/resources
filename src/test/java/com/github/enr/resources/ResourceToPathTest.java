@@ -25,7 +25,44 @@ class ResourceToPathTest {
     assertThat(resource.getAsPath()).isEqualTo(file.toAbsolutePath().normalize());
     assertThat(resource.getAsPath(PathConversionStrategy.STRICT)).isEqualTo(file.toAbsolutePath().normalize());
     assertThat(resource.getAsPath(PathConversionStrategy.LENIENT)).isEqualTo(file.toAbsolutePath().normalize());
-    assertThat(resource.getAsPath(PathConversionStrategy.FORCE_TEMPORARY)).isEqualTo(file.toAbsolutePath().normalize());
+  }
+
+  @Test
+  void fileSystemResource_forceTemporary_returnsCopy(@TempDir Path dir) throws IOException {
+    Path file = dir.resolve("sample.txt");
+    Files.writeString(file, "test content");
+
+    Path result = new FileSystemResource(file.toString()).getAsPath(PathConversionStrategy.FORCE_TEMPORARY);
+    try {
+      assertThat(result).isNotEqualTo(file.toAbsolutePath().normalize());
+      assertThat(Files.readString(result)).isEqualTo("test content");
+    } finally {
+      Files.deleteIfExists(result);
+    }
+  }
+
+  @Test
+  void fileSystemResource_missingFile_throwsForAllStrategies(@TempDir Path dir) {
+    FileSystemResource resource = new FileSystemResource(dir.resolve("missing.txt").toString());
+    for (PathConversionStrategy strategy : PathConversionStrategy.values()) {
+      assertThatThrownBy(() -> resource.getAsPath(strategy)).isInstanceOf(ResourceLoadingException.class);
+    }
+  }
+
+  @Test
+  void urlResource_fileUrl_strictReturnsOriginal_forceTemporaryReturnsCopy(@TempDir Path dir) throws IOException {
+    Path file = dir.resolve("sample.txt");
+    Files.writeString(file, "url content");
+    UrlResource resource = new UrlResource(file.toUri().toString());
+
+    assertThat(resource.getAsPath(PathConversionStrategy.STRICT)).isEqualTo(file);
+    Path copy = resource.getAsPath(PathConversionStrategy.FORCE_TEMPORARY);
+    try {
+      assertThat(copy).isNotEqualTo(file);
+      assertThat(Files.readString(copy)).isEqualTo("url content");
+    } finally {
+      Files.deleteIfExists(copy);
+    }
   }
 
   @Test

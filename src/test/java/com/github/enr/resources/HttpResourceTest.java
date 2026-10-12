@@ -110,4 +110,44 @@ class HttpResourceTest {
       assertThat(orphans).as("no orphaned http-resource temp files").isEmpty();
     }
   }
+
+  @Test
+  void constructor_shouldReject_nonHttpUrl() {
+    assertThatThrownBy(() -> new HttpResource("file:/tmp/foo")).isInstanceOf(ResourceLoadingException.class)
+        .hasMessageContaining("Not an HTTP URL");
+  }
+
+  @Test
+  void getAsString_shouldFollowRedirect() throws IOException {
+    try (MockWebServer server = new MockWebServer()) {
+      server.enqueue(new MockResponse().setResponseCode(301).addHeader("Location", "/target").setBody("moved"));
+      server.enqueue(new MockResponse().setBody("final"));
+      server.start();
+
+      HttpResource resource = new HttpResource(server.url("/start").toString());
+      assertThat(resource.getAsString()).isEqualTo("final");
+    }
+  }
+
+  @Test
+  void getAsInputStream_shouldThrow_forRedirectWithoutLocation() throws IOException {
+    try (MockWebServer server = new MockWebServer()) {
+      server.enqueue(new MockResponse().setResponseCode(302).setBody("redirect page"));
+      server.start();
+
+      HttpResource resource = new HttpResource(server.url("/").toString());
+      assertThatThrownBy(resource::getAsString).isInstanceOf(ResourceLoadingException.class)
+          .hasMessageContaining("Location");
+    }
+  }
+
+  @Test
+  void exists_shouldReturnFalse_forNotModified() throws IOException {
+    try (MockWebServer server = new MockWebServer()) {
+      server.enqueue(new MockResponse().setResponseCode(304));
+      server.start();
+
+      assertThat(new HttpResource(server.url("/").toString()).exists()).isFalse();
+    }
+  }
 }
