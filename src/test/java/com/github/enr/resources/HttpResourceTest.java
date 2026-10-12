@@ -102,12 +102,11 @@ class HttpResourceTest {
       server.start();
 
       HttpResource resource = new HttpResource(server.url("/").toString());
+      TempFileSnapshot tempFiles = TempFileSnapshot.of("http-resource-");
       assertThatThrownBy(() -> resource.getAsPath(PathConversionStrategy.LENIENT))
           .isInstanceOf(ResourceLoadingException.class);
 
-      java.io.File[] orphans = new java.io.File(System.getProperty("java.io.tmpdir"))
-          .listFiles((d, n) -> n.startsWith("http-resource-") && n.endsWith(".tmp"));
-      assertThat(orphans).as("no orphaned http-resource temp files").isEmpty();
+      assertThat(tempFiles.newFiles()).as("no orphaned http-resource temp files").isEmpty();
     }
   }
 
