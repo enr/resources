@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 public class FileSystemResource implements Resource {
 
@@ -57,7 +58,13 @@ public class FileSystemResource implements Resource {
 
   @Override
   public Path getAsPath(PathConversionStrategy strategy) {
-    // FileSystemResource already has a direct file system path, so we can always return it
+    Objects.requireNonNull(strategy, "strategy must not be null");
+    if (!Files.exists(path)) {
+      throw new ResourceLoadingException("Resource not found %s".formatted(path));
+    }
+    if (strategy == PathConversionStrategy.FORCE_TEMPORARY) {
+      return TempFiles.copyToTempFile("resource-", this::getAsInputStream);
+    }
     return path;
   }
 

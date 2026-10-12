@@ -3,11 +3,11 @@ package com.github.enr.resources;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -46,7 +46,7 @@ abstract class AbstractUrlResource implements Resource {
   @Override
   public InputStream getAsInputStream() {
     try {
-      return urlOrFail(location).openStream();
+      return openStream(urlOrFail(location));
     } catch (Exception e) {
       throw new ResourceLoadingException("error loading resource %s".formatted(location), e);
     }
@@ -64,55 +64,51 @@ abstract class AbstractUrlResource implements Resource {
 
   @Override
   public Path getAsPath(PathConversionStrategy strategy) {
+    Objects.requireNonNull(strategy, "strategy must not be null");
+    URL url = urlOrFail(location);
+    if (strategy == PathConversionStrategy.FORCE_TEMPORARY) {
+      return TempFiles.copyToTempFile("resource-", this::getAsInputStream);
+    }
+    Optional<Path> direct = directPath(url);
+    if (direct.isPresent()) {
+      return direct.get();
+    }
+    if (strategy == PathConversionStrategy.STRICT) {
+      throw new ResourceLoadingException(
+          "Cannot convert URL resource to Path with STRICT strategy: %s".formatted(location));
+    }
+    return TempFiles.copyToTempFile("resource-", this::getAsInputStream);
+  }
+
+  private static Optional<Path> directPath(URL url) {
+    if (!"file".equalsIgnoreCase(url.getProtocol())) {
+      return Optional.empty();
+    }
     try {
-      URL url = urlOrFail(location);
-
-      // Try to convert URL to file path directly
-      if ("file".equals(url.getProtocol())) {
-        try {
-          Path filePath = Path.of(url.toURI());
-          if (Files.exists(filePath)) {
-            return filePath;
-          }
-        } catch (Exception e) {
-          // Fall through to other strategies
-        }
-      }
-
-      switch (strategy) {
-        case STRICT:
-          throw new ResourceLoadingException(
-              "Cannot convert URL resource to Path with STRICT strategy: %s".formatted(location));
-
-        case LENIENT:
-        case FORCE_TEMPORARY:
-          return createTemporaryFile();
-
-        default:
-          throw new ResourceLoadingException("Unknown conversion strategy: %s".formatted(strategy));
-      }
-    } catch (ResourceLoadingException e) {
-      throw e;
+      Path filePath = Path.of(url.toURI());
+      return Files.exists(filePath) ? Optional.of(filePath) : Optional.empty();
     } catch (Exception e) {
-      throw new ResourceLoadingException("Error converting resource to Path: %s".formatted(location), e);
+      return Optional.empty();
     }
   }
 
-  private Path createTemporaryFile() throws IOException {
-    Path tempFile = Files.createTempFile("resource-", ".tmp");
-    boolean success = false;
-    try (InputStream is = getAsInputStream()) {
-      Files.copy(is, tempFile, StandardCopyOption.REPLACE_EXISTING);
-      success = true;
-    } finally {
-      if (!success) {
-        try {
-          Files.deleteIfExists(tempFile);
-        } catch (IOException ignored) {
-        }
-      }
+  /**
+   * Opens the given URL with connection and read timeouts; HTTP(S) URLs must answer with a 2xx
+   * status.
+   */
+  protected InputStream openStream(URL url) throws IOException {
+    if (HttpConnections.isHttp(url)) {
+      return HttpConnections.openStream(url, HttpConnections.CONNECT_TIMEOUT_MILLIS,
+          HttpConnections.READ_TIMEOUT_MILLIS);
     }
-    return tempFile;
+    URLConnection connection = url.openConnection();
+    connection.setConnectTimeout(HttpConnections.CONNECT_TIMEOUT_MILLIS);
+    connection.setReadTimeout(HttpConnections.READ_TIMEOUT_MILLIS);
+    return connection.getInputStream();
+  }
+
+  protected String location() {
+    return location;
   }
 
   private URL urlOrFail(String location) {

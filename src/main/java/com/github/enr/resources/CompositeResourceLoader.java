@@ -1,18 +1,19 @@
 package com.github.enr.resources;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 class CompositeResourceLoader implements ResourceLoader {
 
-  private final SortedSet<PrioritizableResourceLocation> locations;
+  private final List<PrioritizableResourceLocation> locations;
 
   CompositeResourceLoader(PrioritizableResourceLocation... locations) {
-    SortedSet<PrioritizableResourceLocation> sorted = new TreeSet<>(new PrioritizableComparator());
-    sorted.addAll(Arrays.asList(locations));
-    this.locations = sorted;
+    // stable sort: locations with the same priority keep their declaration order
+    List<PrioritizableResourceLocation> sorted = new ArrayList<>(Arrays.asList(locations));
+    sorted.sort(new PrioritizableComparator());
+    this.locations = List.copyOf(sorted);
   }
 
   @Override

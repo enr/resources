@@ -143,12 +143,11 @@ class AbstractUrlResourceTest {
     TestUrlResource resource = new TestUrlResource("test-location");
     resource.setUrl(Optional.of(new URL("http://example.com")));
     resource.setInputStreamToThrowException(true);
+    TempFileSnapshot tempFiles = TempFileSnapshot.of("resource-");
 
     assertThatThrownBy(() -> resource.getAsPath(PathConversionStrategy.LENIENT)).isInstanceOf(RuntimeException.class);
 
-    java.io.File[] orphans = new java.io.File(System.getProperty("java.io.tmpdir"))
-        .listFiles((d, n) -> n.startsWith("resource-") && n.endsWith(".tmp"));
-    assertThat(orphans).as("no orphaned temp files after failed getAsPath").isEmpty();
+    assertThat(tempFiles.newFiles()).as("no orphaned temp files after failed getAsPath").isEmpty();
   }
 
   @Test

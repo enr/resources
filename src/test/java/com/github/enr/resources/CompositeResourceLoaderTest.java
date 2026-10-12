@@ -140,6 +140,32 @@ class CompositeResourceLoaderTest {
     assertThat(resource).as("get() with empty locations").isInstanceOf(UnreadableResource.class);
   }
 
+  @Test
+  void get_shouldKeepLocationsWithSamePriority_inDeclarationOrder() {
+    TestResource first = new TestResource("first");
+    TestResource second = new TestResource("second");
+    TestResourceLocation onlyFirst = new TestResourceLocation(false, first);
+    TestResourceLocation both = new TestResourceLocation(true, second);
+
+    CompositeResourceLoader loader = new CompositeResourceLoader(new PrioritizableResourceLocation(10, onlyFirst),
+        new PrioritizableResourceLocation(10, both));
+
+    assertThat(loader.supports("any")).as("location with duplicated priority must not be dropped").isTrue();
+    assertThat(loader.get("any")).isSameAs(second);
+  }
+
+  @Test
+  void get_shouldPreferFirstDeclared_whenPrioritiesAreEqual() {
+    TestResource first = new TestResource("first");
+    TestResource second = new TestResource("second");
+
+    CompositeResourceLoader loader =
+        new CompositeResourceLoader(new PrioritizableResourceLocation(5, new TestResourceLocation(true, first)),
+            new PrioritizableResourceLocation(5, new TestResourceLocation(true, second)));
+
+    assertThat(loader.get("any")).isSameAs(first);
+  }
+
   // Test helper classes
   private static class TestResourceLocation implements ResourceLocation {
     private final boolean supports;
